@@ -1,0 +1,83 @@
+// Open AC-4 decoder Codec2 soft component (RaB1D) — replaces the silent Dolby
+// prebuilt libcodec2_soft_ac4dec.so with a libavcodec-backed software decoder.
+// Component name and .so name are unchanged, so the Dolby c2 store and the
+// media_codecs XML pick it up with no other edits.
+
+// ---- prebuilt ffmpeg static libs (ac4-only, cross-built for arm64-android) ----
+cc_prebuilt_library_static {
+    name: "libavcodec_ac4_rab1d",
+    vendor_available: true,
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["ffmpeg/lib/arm64/libavcodec.a"] } },
+    export_include_dirs: ["ffmpeg/include"],
+    compile_multilib: "64",
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_static {
+    name: "libavutil_ac4_rab1d",
+    vendor_available: true,
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["ffmpeg/lib/arm64/libavutil.a"] } },
+    export_include_dirs: ["ffmpeg/include"],
+    compile_multilib: "64",
+    check_elf_files: false,
+}
+
+// ---- the C2 soft component (drop-in replacement, VENDOR /vendor/lib64) ----
+// Inlines libcodec2_soft-defaults + libcodec2-impl-defaults content instead of
+// inheriting them, because those set vendor_available:true which conflicts with
+// vendor:true. All deps are vendor variants already shipped by dolby.mk.
+cc_library {
+    name: "libcodec2_soft_ac4dec",
+    vendor: true,
+    compile_multilib: "64",
+
+    srcs: ["C2SoftAc4Dec.cpp"],
+    local_include_dirs: ["ffmpeg/include"],
+
+    static_libs: [
+        "libavcodec_ac4_rab1d",
+        "libavutil_ac4_rab1d",
+    ],
+
+    // export the C2 factory symbols the Dolby store dlopens
+    version_script: "exports.lds",
+    ldflags: ["-Wl,-Bsymbolic"],
+
+    header_libs: [
+        "libarect_headers",
+        "libnativewindow_headers",
+    ],
+
+    shared_libs: [
+        // libcodec2_soft-defaults
+        "libcodec2_soft_common",
+        "libsfplugin_ccodec_utils",
+        "libstagefright_foundation",
+        // libcodec2-impl-defaults
+        "libbase",
+        "libcodec2",
+        "libcodec2_hal_common",
+        "libcodec2_vndk",
+        "libutils",
+        // common
+        "libcutils",
+        "liblog",
+    ],
+
+    // ffmpeg static libs are not CFI/UBSan instrumented.
+    sanitize: {
+        cfi: false,
+        misc_undefined: [],
+    },
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+    ],
+
+    min_sdk_version: "29",
+}

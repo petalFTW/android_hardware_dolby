@@ -1,0 +1,232 @@
+// Dolby Atmos (DAX3 3.12) — AIDL effect stack ported from Xiaomi 15 (dada, HyperOS A16)
+// shared_libs intentionally omitted: check_elf_files disabled and every dependency is
+// installed via dolby.mk PRODUCT_PACKAGES or already present on the device. Listing the
+// versioned AIDL -ndk interface libs here drags in conflicting frozen aidl versions.
+// SPDX-License-Identifier: Apache-2.0
+
+soong_namespace {
+    // import the QTI audio-effect framework namespace so libdapdirect (our thin
+    // AIDL Dolby effect) can use aidlaudioeffectserviceqti_defaults +
+    // libaudioeffecthal_base_impl_static.
+    imports: [
+        "hardware/qcom-caf/sm8750",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "libhwdapaidl",
+    owner: "xiaomi",
+    strip: { none: true },
+    relative_install_path: "soundfx",
+    target: { android_arm64: { srcs: ["proprietary/lib64/soundfx/libhwdapaidl.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libdlbvolaidl",
+    owner: "xiaomi",
+    strip: { none: true },
+    relative_install_path: "soundfx",
+    target: { android_arm64: { srcs: ["proprietary/lib64/soundfx/libdlbvolaidl.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libswgamedapaidl",
+    owner: "xiaomi",
+    strip: { none: true },
+    relative_install_path: "soundfx",
+    target: { android_arm64: { srcs: ["proprietary/lib64/soundfx/libswgamedapaidl.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libdapparamstorage",
+    owner: "xiaomi",
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["proprietary/lib64/libdapparamstorage.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libdlbpreg",
+    owner: "xiaomi",
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["proprietary/lib64/libdlbpreg.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libdmshal",
+    owner: "xiaomi",
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["proprietary/lib64/libdmshal.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libdlbdsservice",
+    owner: "xiaomi",
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["proprietary/lib64/libdlbdsservice.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "vendor.dolby.dms-V1-ndk",
+    owner: "xiaomi",
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["proprietary/lib64/vendor.dolby.dms-V1-ndk.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "vendor.dolby.hardware.dms@2.0",
+    owner: "xiaomi",
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["proprietary/lib64/vendor.dolby.hardware.dms@2.0.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "android.media.audio.common.types-V6-ndk",
+    owner: "xiaomi",
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["proprietary/lib64/android.media.audio.common.types-V6-ndk.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_binary {
+    name: "vendor.dolby.dms.service",
+    owner: "xiaomi",
+    strip: { none: true },
+    srcs: ["proprietary/bin/hw/vendor.dolby.dms.service"],
+    relative_install_path: "hw",
+    check_elf_files: false,
+    compile_multilib: "64",
+    init_rc: ["init/dms-service.rc"],
+    vintf_fragments: ["vintf/dms-service.xml"],
+    soc_specific: true,
+}
+
+// Donor (Xiaomi) effect-V2 / common-V3 interface libs, shipped under PRIVATE sonames
+// (patchelf --set-soname + --replace-needed) so our Dolby soundfx libs load these
+// instead of the tree's frozen source vendor variant. Private names => no install-path
+// collision with the aidl-generated android.hardware.audio.*-ndk vendor libs, and no
+// soname clash with the system copies. Source frozen-V2 lacks Xiaomi's vendor-extended
+// effect Descriptor (DAP queryEffect returns no type UUID); the donor libs work.
+cc_prebuilt_library_shared {
+    name: "libdlbaudioeffectv2",
+    owner: "xiaomi",
+    strip: { none: true },
+    srcs: ["proprietary/lib64/libdlbaudioeffectv2.so"],
+    compile_multilib: "64",
+    check_elf_files: false,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libdlbaudiocommonv3",
+    owner: "xiaomi",
+    strip: { none: true },
+    srcs: ["proprietary/lib64/libdlbaudiocommonv3.so"],
+    compile_multilib: "64",
+    check_elf_files: false,
+    soc_specific: true,
+}
+
+// -----------------------------------------------------------------------------
+// Dolby audio DECODERS (AC-4 + E-AC-3/JOC) — Codec2 software components, ported
+// from the same Xiaomi 15 source as the DAP. Enables Tidal Dolby Atmos (AC-4)
+// and E-AC-3-JOC (video Atmos). Hosted by the Dolby c2 HAL service below; store
+// libcodec2_store_dolby registers c2.dolby.ac4.decoder + c2.dolby.eac3.decoder.
+// -----------------------------------------------------------------------------
+// petalOS: the source module (hardware/dolby/ac4dec-open) supersedes this
+// prebuilt Dolby blob, which renders pure silence on OnePlus SM8850 firmware.
+// prefer:false lets the source libcodec2_soft_ac4dec build instead.
+cc_prebuilt_library_shared {
+    name: "libcodec2_soft_ac4dec",
+    owner: "xiaomi",
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["proprietary/lib64/libcodec2_soft_ac4dec.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: false,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libcodec2_soft_ddpdec",
+    owner: "xiaomi",
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["proprietary/lib64/libcodec2_soft_ddpdec.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libcodec2_store_dolby",
+    owner: "xiaomi",
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["proprietary/lib64/libcodec2_store_dolby.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libdeccfg",
+    owner: "xiaomi",
+    strip: { none: true },
+    target: { android_arm64: { srcs: ["proprietary/lib64/libdeccfg.so"] } },
+    compile_multilib: "64",
+    check_elf_files: false,
+    prefer: true,
+    soc_specific: true,
+}
+
+cc_prebuilt_binary {
+    name: "vendor.dolby.media.c2-default-service-dax",
+    owner: "xiaomi",
+    strip: { none: true },
+    srcs: ["proprietary/bin/hw/vendor.dolby.media.c2-default-service-dax"],
+    relative_install_path: "hw",
+    check_elf_files: false,
+    compile_multilib: "64",
+    init_rc: ["init/vendor.dolby.media.c2-default-service-dax.rc"],
+    vintf_fragments: ["vintf/manifest/vendor.dolby.media.c2-default-service-dax.xml"],
+    soc_specific: true,
+}

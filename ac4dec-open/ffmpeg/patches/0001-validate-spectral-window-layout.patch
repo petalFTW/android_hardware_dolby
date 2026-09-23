@@ -1,0 +1,19 @@
+--- a/libavcodec/ac4dec.c
++++ b/libavcodec/ac4dec.c
+@@ -1,1 +1,2 @@
+-        if (max_sfb > sfb_max_size) {
++        // The table includes the terminal offset, indexed below by max_sfb.
++        if (max_sfb >= sfb_max_size) {
+@@ -1,2 +1,10 @@
+-        for (int sfb = 0; sfb < max_sfb; sfb++)
+-            ssch->sect_sfb_offset[g][sfb] = group_offset + sfb_offset[sfb] * ssch->scp.num_win_in_group[g];
++        if (ssch->scp.num_win_in_group[g] > FF_ARRAY_ELEMS(ssch->win_offset) - win ||
++            transf_length_g <= 0 ||
++            ssch->scp.num_win_in_group[g] > (FF_ARRAY_ELEMS(ssch->spec_reord) - win_offset) / transf_length_g ||
++            sfb_offset[max_sfb] > transf_length_g ||
++            ssch->scp.num_win_in_group[g] > (FF_ARRAY_ELEMS(ssch->scaled_spec) - group_offset) / FFMAX(1, sfb_offset[max_sfb])) {
++            av_log(s->avctx, AV_LOG_ERROR, "invalid spectral window layout\n");
++            return AVERROR_INVALIDDATA;
++        }
++        for (int sfb = 0; sfb < max_sfb; sfb++)
++            ssch->sect_sfb_offset[g][sfb] = group_offset + sfb_offset[sfb] * ssch->scp.num_win_in_group[g];

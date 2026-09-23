@@ -1,0 +1,31 @@
+// Dolby DAP-direct — thin AIDL software effect reusing the game-DAP dap_cpdp
+// engine directly (no DMS / no DSP offload / no license). Loaded by
+// AHAL_EffectFactoryQti via createEffect(); registered in audio_effects_config
+// with its own UUID + typeSameAsUuid.
+// SPDX-License-Identifier: Apache-2.0
+
+cc_library_shared {
+    name: "libdapdirect",
+    defaults: ["aidlaudioeffectserviceqti_defaults"],
+    owner: "rab1d",
+    relative_install_path: "soundfx",
+    vendor: true,
+
+    cflags: [
+        "-Wthread-safety",
+        "-Wno-unused-parameter",
+    ],
+
+    srcs: [
+        "DapDirect.cpp",
+        "DapDirectContext.cpp",
+    ],
+
+    shared_libs: [
+        "libdl",
+    ],
+
+    static_libs: [
+        "libaudioeffecthal_base_impl_static",
+    ],
+}

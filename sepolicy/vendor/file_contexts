@@ -1,0 +1,10 @@
+# Dolby data
+/data/vendor/dolby(/.*)?                                      u:object_r:vendor_dolby_data_file:s0
+
+# Dolby Management Service (AIDL)
+/vendor/bin/hw/vendor\.dolby\.dms\.service                    u:object_r:hal_dms_default_exec:s0
+
+# Dolby Codec2 audio-decoder HAL service (AC-4 / E-AC-3-JOC). Runs in the existing
+# mediacodec domain (its .rc uses "user mediacodec", no custom seclabel) — matches
+# how the Xiaomi source labels it, so no new SELinux domain is needed.
+/vendor/bin/hw/vendor\.dolby\.media\.c2-default-service-dax   u:object_r:mediacodec_exec:s0

@@ -1,0 +1,40 @@
+# Dolby Management Service (DMS) — AIDL vendor HAL
+type hal_dms_default, domain;
+type hal_dms_default_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(hal_dms_default)
+
+# Register the AIDL service
+add_service(hal_dms_default, hal_dms_service)
+binder_use(hal_dms_default)
+
+# Private data
+allow hal_dms_default vendor_dolby_data_file:dir create_dir_perms;
+allow hal_dms_default vendor_dolby_data_file:file create_file_perms;
+
+# Properties
+set_prop(hal_dms_default, vendor_dolby_prop)
+get_prop(hal_dms_default, vendor_audio_prop)
+get_prop(hal_dms_default, vendor_default_prop)
+
+# The DAP effect (libhwdapaidl) is dlopened inside the audio effect HAL / audioserver,
+# which is the real client of the DMS HAL. AudioService (system_server) may query it.
+allow audioserver hal_dms_service:service_manager find;
+allow hal_audio_default hal_dms_service:service_manager find;
+allow system_server hal_dms_service:service_manager find;
+
+binder_call(audioserver, hal_dms_default)
+binder_call(hal_audio_default, hal_dms_default)
+binder_call(system_server, hal_dms_default)
+
+# The display/composer HAL reads a vendor.dolby.* prop for Dolby Vision; our
+# property_contexts re-typed it to vendor_dolby_prop, so grant the read back
+# (prevents an avc-denied spam regression; unrelated to the audio DMS).
+get_prop(hal_graphics_composer_default, vendor_dolby_prop)
+
+# The software DAP effect (libdapdirect) is dlopened INSIDE the audio effect HAL
+# (hal_audio_default). Its bundled dap_cpdp engine reads vendor.dolby.* debug/log
+# props (persist.vendor.dolby.loglevel, vendor.dolby.debug.dap_pcm_dump,
+# vendor.dolby.mi.metadata.log) on every process cycle. property_contexts types
+# those as vendor_dolby_prop, so without this the audio HAL can't read them and
+# libc spams "Access denied finding property persist.vendor.dolby.loglevel".
+get_prop(hal_audio_default, vendor_dolby_prop)

@@ -1,0 +1,7 @@
+vendor.dolby.dms.IDms/default    u:object_r:hal_dms_service:s0
+
+# Dolby's Codec2 decoder service registers a private IComponentStore instance
+# ("default9"); label it like the platform c2 stores so mediacodec may add it and
+# clients may find it. Without this it lands on default_android_service and the
+# add/find are denied, so the AC-4 / E-AC-3-JOC decoders never appear.
+android.hardware.media.c2.IComponentStore/default9    u:object_r:hal_codec2_service:s0

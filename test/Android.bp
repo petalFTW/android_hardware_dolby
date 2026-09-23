@@ -1,0 +1,14 @@
+cc_binary {
+    name: "dap_enable_test",
+    srcs: ["dap_enable_test.cpp"],
+    shared_libs: [
+        "libaudioclient",
+        "libutils",
+        "libbinder",
+        "liblog",
+        "libaudiofoundation",
+        "framework-permission-aidl-cpp",
+    ],
+    cflags: ["-Wall", "-Werror"],
+    vendor: false,
+}

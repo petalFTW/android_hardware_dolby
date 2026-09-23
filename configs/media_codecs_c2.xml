@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Vendor Codec2 hook file (petalOS / RaB1D).
+
+    Codec2InfoBuilder::buildMediaCodecList() parses media_codecs_c2.xml in
+    addition to the media_codecs*.xml variant chain (ro.media.xml_variant.codecs
+    = _canoe_sku3 on this device, whose QTI root never includes the Dolby file),
+    and drops any C2 component trait that has no XML entry
+    ("component 'c2.dolby.ac4.decoder' not found in xml"). Without this file the
+    Dolby components never reach MediaCodecList, audio/ac4 has no decoder and
+    Tidal Atmos playback fails with an error.
+
+    Single source of truth remains media_codecs_dolby_audio.xml.
+-->
+<Included>
+    <Include href="media_codecs_dolby_audio.xml" />
+</Included>
